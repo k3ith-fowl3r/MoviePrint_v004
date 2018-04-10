@@ -146,6 +146,7 @@ class App extends Component {
     this.onTogglePlaybar = this.onTogglePlaybar.bind(this);
     this.switchToPrintView = this.switchToPrintView.bind(this);
     this.onSaveMoviePrint = this.onSaveMoviePrint.bind(this);
+    this.onGetFadeInOut = this.onGetFadeInOut.bind(this);
 
     this.updatecontainerWidthAndHeight = this.updatecontainerWidthAndHeight.bind(this);
     this.updateScaleValue = this.updateScaleValue.bind(this);
@@ -524,6 +525,12 @@ class App extends Component {
     );
   }
 
+  onGetFadeInOut() {
+    console.log('inside onGetFadeInOut');
+    console.log(this.props.file);
+    ipcRenderer.send('send-get-fadeInOut', this.props.file.id, this.props.file.path);
+  }
+
   onChangeRow = (value) => {
     this.setState({ thumbCountTemp: this.state.columnCountTemp * value });
     this.updateScaleValue();
@@ -697,6 +704,11 @@ class App extends Component {
           {({ isDragAccept, isDragReject }) => {
             return (
               <div>
+                <button
+                  onClick={this.onGetFadeInOut}
+                >
+                  get fade in out
+                </button>
                 <div className={`${styles.Site}`}>
                   <div
                     className={`${styles.SiteContent}`}

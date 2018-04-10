@@ -157,10 +157,7 @@ ipcMain.on('send-get-thumbs', (event, fileId, filePath, thumbIdArray, frameIdArr
   console.log(fileId);
   console.log(filePath);
   console.log(frameIdArray);
-  // opencv.VideoStream(path.resolve(__dirname, './fingers.mov'), function (err, im) {
-  // When opening a file, the full path must be passed to opencv
-  // const vid = new opencv.VideoCapture(path.resolve(__dirname, './FrameTestMovie_v001.mov'));
-  // const vid = new opencv.VideoCapture(path.resolve(__dirname, './FrameTestMovie_v001.mp4'));
+
   const vid = new opencv.VideoCapture(filePath);
   console.log(`frameCount: ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`);
   console.log(`width: ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH)}`);
@@ -177,10 +174,8 @@ ipcMain.on('send-get-thumbs', (event, fileId, filePath, thumbIdArray, frameIdArr
         0,
         (vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1)
       );
-
+      // go to frame
       vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, frameNumberToCapture);
-
-      // console.log(`before readAsync: ${iterator}, frameOffset: ${frameOffset}, ${frameNumberToCapture}/${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1}(${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`);
 
       vid.readAsync((err, mat) => {
         console.log(`readAsync: ${iterator}, frameOffset: ${frameOffset}, ${frameNumberToCapture}/${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1}(${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`);
@@ -221,11 +216,40 @@ ipcMain.on('send-get-thumbs', (event, fileId, filePath, thumbIdArray, frameIdArr
 
     if (err1) throw err1;
     let iterator = 0;
-    if (relativeFrameCount) {
-      vid.set(VideoCaptureProperties.CAP_PROP_POS_AVI_RATIO, frameNumberArray[iterator]);
-    } else {
+    // if (relativeFrameCount) {
+    //   vid.set(VideoCaptureProperties.CAP_PROP_POS_AVI_RATIO, frameNumberArray[iterator]);
+    // } else {
       vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, frameNumberArray[iterator]);
-    }
+    // }
+    read();
+  });
+});
+
+ipcMain.on('send-get-fadeInOut', (event, fileId, filePath) => {
+  console.log(fileId);
+  console.log(filePath);
+
+  const vid = new opencv.VideoCapture(filePath);
+
+  vid.readAsync((err1) => {
+    const read = () => {
+      vid.readAsync((err, mat) => {
+        console.log(`readAsync: ${iterator}, ${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1}(${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`);
+
+        if (mat.empty === false) {
+          console.log(`read frame number ${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1}`);
+        } else {
+          console.log(`frame number ${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1} is empty`);
+        }
+        iterator += 1;
+        if (iterator < 100) {
+          read();
+        }
+      });
+    };
+
+    if (err1) throw err1;
+    let iterator = 0;
     read();
   });
 });
